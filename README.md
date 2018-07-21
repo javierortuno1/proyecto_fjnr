@@ -1,2 +1,2 @@
 # proyecto_fjnr
-Proyecto para generar tokens de promoción para empresas
+Proyecto Blockchain para generar tokens de promoción para empresas
