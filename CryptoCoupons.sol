@@ -287,7 +287,28 @@ contract CryptoCoupons is AccessControl, DetailedERC721 {
         str = string(s);
     }
     
-     function _isContract(address addr) private view returns (bool) {
+  function _burn(address _owner, uint256 _tokenId) internal {
+    clearApproval(_owner, _tokenId);
+    removeTokenFrom(_owner, _tokenId);
+    emit Transfer(_owner, address(0), _tokenId);
+  }
+
+
+  function clearApproval(address _owner, uint256 _tokenId) internal {
+    require(ownerOf(_tokenId) == _owner);
+    if (tokenIdToApproved[_tokenId] != address(0)) {
+      tokenIdToApproved[_tokenId] = address(0);
+    }
+  }
+
+
+  function removeTokenFrom(address _from, uint256 _tokenId) internal {
+    require(ownerOf(_tokenId) == _from);
+    ownershipTokenCount[_from] = ownershipTokenCount[_from].sub(1);
+    tokenIdToOwner[_tokenId] = address(0);
+  }
+     
+    function _isContract(address addr) private view returns (bool) {
         uint256 size;
         assembly { size := extcodesize(addr) }
         return size > 0;
