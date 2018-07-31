@@ -5,6 +5,7 @@ import "./ERC721.sol";
 import "./SafeMath.sol";
 
 
+
 contract DetailedERC721 is ERC721 {
     function name() public view returns (string _name);
     function symbol() public view returns (string _symbol);
@@ -13,9 +14,9 @@ contract DetailedERC721 is ERC721 {
 /*  
     TO DO
     - Add conditionals for the 3 different types of assignment (lottery, lottery + fee, Selling)
-    - Add function to generate multiple tokens
-    - Create burnToken function
-    - Create the lottery function
+    - Add function to generate multiple tokens (it should be approved)
+    - Create burnToken function (it should be approved) 
+    - Create the lottery function 
     
     P.S:  The implementERC721 function has been deleted from ERC721.sol and CryptoCoupons.sol , otherwise, we could not deploy the contract.
 */    
@@ -35,7 +36,10 @@ contract CryptoCoupons is AccessControl, DetailedERC721 {
     mapping (uint256 => uint256) private tokenIdToPrice;
     mapping (address => uint256) private ownershipTokenCount;
     mapping (uint256 => address) private tokenIdToApproved;
-
+    //players to participate in the lottery
+    address[] public players;
+    
+   
     struct Coupon {
         string name;
         string description;
@@ -313,5 +317,27 @@ contract CryptoCoupons is AccessControl, DetailedERC721 {
         assembly { size := extcodesize(addr) }
         return size > 0;
     }
+    
+    //to check player
+    function checkPlayerExists(address player) public constant returns(bool){
+      for(uint256 i = 0; i < players.length; i++){
+         if(players[i] == player) return true;
+      }
+      return false;
+   }
+   //generate winner of token
+    function generateWinnerAddress() public view onlyCLevel returns(address) {
+      //it depends of the condition
+      //for now Generates a number between 1 and length of players that will be the winner
+      uint256 numberGenerated = block.number % players.length + 1; // This isn't secure
+      return players[numberGenerated];
+   }
+
+   function generateWinnerOfToken(uint256 _tokenId) public onlyCLevel returns (address) {
+        address playerWinner = generateWinnerAddress();
+        transfer(playerWinner, _tokenId);
+        return playerWinner;
+   }
+   
 
 }
